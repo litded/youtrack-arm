@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check new version
-        if: github.event.schedule == '30 10 * * 5'
+        # if: github.event.schedule == '30 10 * * 5'
         run: |
           LAST_VERSION=$(cat last_version.txt)
           DIST_VERSION=$(curl -s 'https://registry.hub.docker.com/v2/repositories/jetbrains/youtrack/tags/' | jq '."results"[]["name"]' | head -1 | sed 's/"//g')
@@ -20,16 +20,16 @@ jobs:
       - name: Get code
         uses: actions/checkout@v4
 
-      - name: Building a new tag
-        if: github.event.schedule == '30 10 * * 5'
-        run: |
-          DIST_VERSION=$(curl -s 'https://registry.hub.docker.com/v2/repositories/jetbrains/youtrack/tags/' | jq '."results"[]["name"]' | head -1 | sed 's/"//g')
-          wget "https://download-cdn.jetbrains.com/charisma/youtrack-$DIST_VERSION.zip"
-          unzip "youtrack-$DIST_VERSION.zip" && mv "youtrack-$DIST_VERSION/" youtrack && rm -f "youtrack-$DIST_VERSION.zip"
-          docker build --build-arg DIST_VERSION=$DIST_VERSION . --tag litded/youtrack:$DIST_VERSION
+      # - name: Building a new tag
+      #   if: github.event.schedule == '30 10 * * 5'
+      #   run: |
+      #     DIST_VERSION=$(curl -s 'https://registry.hub.docker.com/v2/repositories/jetbrains/youtrack/tags/' | jq '."results"[]["name"]' | head -1 | sed 's/"//g')
+      #     wget "https://download-cdn.jetbrains.com/charisma/youtrack-$DIST_VERSION.zip"
+      #     unzip "youtrack-$DIST_VERSION.zip" && mv "youtrack-$DIST_VERSION/" youtrack && rm -f "youtrack-$DIST_VERSION.zip"
+      #     docker build --build-arg DIST_VERSION=$DIST_VERSION . --tag litded/youtrack:$DIST_VERSION
 
-      - name: Building a new tag
-        if: github.event.schedule == '30 10 * * 5'
+      - name: Building a new tag manual
+        if: github.event.workflow_dispatch
         run: |
           DIST_VERSION=$(curl -s 'https://registry.hub.docker.com/v2/repositories/jetbrains/youtrack/tags/' | jq '."results"[]["name"]' | head -1 | sed 's/"//g')
           wget "https://download-cdn.jetbrains.com/charisma/youtrack-$DIST_VERSION.zip"
