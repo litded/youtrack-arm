@@ -11,27 +11,29 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check new version
-        # if: github.event.schedule == '30 10 * * 5'
+        if: github.event.schedule == '30 10 * * 5'
         run: |
-          LAST_VERSION=$(cat last_version.txt)
+          LAST_VERSION=$(curl -s 'https://registry.hub.docker.com/v2/repositories/litded/youtrack-arm/tags/' | jq '."results"[]["name"]' | head -1 | sed 's/"//g')
           DIST_VERSION=$(curl -s 'https://registry.hub.docker.com/v2/repositories/jetbrains/youtrack/tags/' | jq '."results"[]["name"]' | head -1 | sed 's/"//g')
           if [[ $DIST_VERSION != $LAST_VERSION ]]: then echo "$DIST_VERSION" > last_version.txt; else: exit 1;  fi
 
       - name: Get code
         uses: actions/checkout@v4
 
-      # - name: Building a new tag
-      #   if: github.event.schedule == '30 10 * * 5'
-      #   run: |
-      #     DIST_VERSION=$(curl -s 'https://registry.hub.docker.com/v2/repositories/jetbrains/youtrack/tags/' | jq '."results"[]["name"]' | head -1 | sed 's/"//g')
-      #     wget "https://download-cdn.jetbrains.com/charisma/youtrack-$DIST_VERSION.zip"
-      #     unzip "youtrack-$DIST_VERSION.zip" && mv "youtrack-$DIST_VERSION/" youtrack && rm -f "youtrack-$DIST_VERSION.zip"
-      #     docker build --build-arg DIST_VERSION=$DIST_VERSION . --tag litded/youtrack:$DIST_VERSION
+      - name: Building a new tag
+        needs: ["Check new version", "Get code"]
+        if: github.event.schedule == '30 10 * * 5'
+        run: |
+          DIST_VERSION=$(curl -s 'https://registry.hub.docker.com/v2/repositories/jetbrains/youtrack/tags/' | jq '."results"[]["name"]' | head -1 | sed 's/"//g')
+          wget "https://download-cdn.jetbrains.com/charisma/youtrack-$DIST_VERSION.zip"
+          unzip "youtrack-$DIST_VERSION.zip" && mv "youtrack-$DIST_VERSION/" youtrack && rm -f "youtrack-$DIST_VERSION.zip"
+          docker build --build-arg DIST_VERSION=$DIST_VERSION . --tag litded/litded/youtrack-arm:$DIST_VERSION
 
       - name: Building a new tag manual
+        needs: Get code
         if: github.event.workflow_dispatch
         run: |
           DIST_VERSION=$(curl -s 'https://registry.hub.docker.com/v2/repositories/jetbrains/youtrack/tags/' | jq '."results"[]["name"]' | head -1 | sed 's/"//g')
           wget "https://download-cdn.jetbrains.com/charisma/youtrack-$DIST_VERSION.zip"
           unzip "youtrack-$DIST_VERSION.zip" && mv "youtrack-$DIST_VERSION/" youtrack && rm -f "youtrack-$DIST_VERSION.zip"
-          docker build --build-arg DIST_VERSION=$DIST_VERSION . --tag litded/youtrack:$DIST_VERSION
+          docker build --build-arg DIST_VERSION=$DIST_VERSION . --tag litded/youtrack-arm:$DIST_VERSION
