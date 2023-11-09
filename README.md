@@ -1,6 +1,8 @@
 # youtrack-arm
 Это неофициальная сборка YouTrack для raspberry pi основанная на arm32v7/adoptopenjdk и официальном образе jetbrains/youtrack.
 
+https://hub.docker.com/r/litded/youtrack-arm
+
 Сборка происходит автоматически, каждую субботу, если появился новый тэг в официальном репозитории.
 
 Пример helmfile.yaml:
