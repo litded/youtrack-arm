@@ -29,9 +29,11 @@ jobs:
           docker build --build-arg DIST_VERSION=$DIST_VERSION . --tag litded/litded/youtrack-arm:$DIST_VERSION
 
       - name: Building a new tag manual
-        if: github.event.workflow_dispatch
+        if: ${{ github.event.workflow_dispatch }}
         run: |
           DIST_VERSION=$(curl -s 'https://registry.hub.docker.com/v2/repositories/jetbrains/youtrack/tags/' | jq '."results"[]["name"]' | head -1 | sed 's/"//g')
           wget "https://download-cdn.jetbrains.com/charisma/youtrack-$DIST_VERSION.zip"
           unzip "youtrack-$DIST_VERSION.zip" && mv "youtrack-$DIST_VERSION/" youtrack && rm -f "youtrack-$DIST_VERSION.zip"
           docker build --build-arg DIST_VERSION=$DIST_VERSION . --tag litded/youtrack-arm:$DIST_VERSION
+          docker push litded/youtrack-arm:$DIST_VERSION
+          docker rm litded/youtrack-arm:$DIST_VERSION
