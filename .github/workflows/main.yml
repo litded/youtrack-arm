@@ -14,8 +14,7 @@ jobs:
           LAST_VERSION=$(curl -s 'https://registry.hub.docker.com/v2/repositories/litded/youtrack-arm/tags/' | jq '."results"[]["name"]' | head -1 | sed 's/"//g')
           DIST_VERSION=$(curl -s 'https://registry.hub.docker.com/v2/repositories/jetbrains/youtrack/tags/' | jq '."results"[]["name"]' | head -1 | sed 's/"//g')
           if [[ $DIST_VERSION != $LAST_VERSION ]]: then echo "$DIST_VERSION" > last_version.txt; else: exit 1;  fi
-
-jobs:
+          
   docker:
     needs: check
     runs-on: self-hosted
